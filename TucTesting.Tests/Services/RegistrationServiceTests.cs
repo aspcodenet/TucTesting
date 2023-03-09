@@ -25,16 +25,40 @@ namespace TucTesting.Tests.Services
         }
     }
 
+    public class FakeEmailService : IEmailService
+    {
+        public void SendEmail(string email)
+        {
+            
+        }
+    }
+
     // Är personens webaddress med domän @hej.se eller @hej.com ? Annars fail
     [TestClass]
     public class RegistrationServiceTests
     {
         private RegistrationService sut;
         private FakeUserRepository fakeUserRepository = new FakeUserRepository();
+        private FakeEmailService fakeEmailService = new FakeEmailService();
 
         public RegistrationServiceTests()
         {
-            sut = new RegistrationService(fakeUserRepository, null);
+            sut = new RegistrationService(fakeUserRepository, fakeEmailService);
+        }
+
+        [TestMethod]
+        public void When_registration_ok_user_is_saved()
+        {
+            //ARRANGE
+            var email = "stefan@hej.se";
+            fakeUserRepository.registeredEmails.Clear();
+
+            //ACT
+            sut.RegisterUser(email);
+
+            //ASSERT
+            Assert.IsTrue(fakeUserRepository.registeredEmails.Contains(email));
+
         }
 
         [TestMethod]
