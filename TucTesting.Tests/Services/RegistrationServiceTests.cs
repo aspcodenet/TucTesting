@@ -14,11 +14,14 @@ namespace TucTesting.Tests.Services
         public List<string> registeredEmails = new List<string>();
         public UserRegistration Get(string email)
         {
-            throw new NotImplementedException();
+            //if (registeredEmails.Contains(email) == null) return null;
+            //return new UserRegistration();
+
+            return registeredEmails.Contains(email) ? new UserRegistration() : null;
         }
         public void CreateNew(string email)
         {
-            throw new NotImplementedException();
+            registeredEmails.Add(email);
         }
     }
 
@@ -27,10 +30,11 @@ namespace TucTesting.Tests.Services
     public class RegistrationServiceTests
     {
         private RegistrationService sut;
+        private FakeUserRepository fakeUserRepository = new FakeUserRepository();
 
         public RegistrationServiceTests()
         {
-            sut = new RegistrationService(null,null);
+            sut = new RegistrationService(fakeUserRepository, null);
         }
 
         [TestMethod]
@@ -38,7 +42,7 @@ namespace TucTesting.Tests.Services
         {
             // ARRANGE
             var userEmail = "stefan@hej.se";
-            // Få den att redan vara regostrerad
+            fakeUserRepository.CreateNew(userEmail);
             
             //ACT
             var result = sut.RegisterUser(userEmail);
