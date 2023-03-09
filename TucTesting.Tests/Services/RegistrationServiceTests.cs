@@ -27,9 +27,10 @@ namespace TucTesting.Tests.Services
 
     public class FakeEmailService : IEmailService
     {
+        public bool MethodHasBeenCalled = false;
         public void SendEmail(string email)
         {
-            
+            MethodHasBeenCalled = true;
         }
     }
 
@@ -47,6 +48,23 @@ namespace TucTesting.Tests.Services
         }
 
         [TestMethod]
+        public void When_registration_ok_email_is_sent()
+        {
+            //ARRANGE
+            var email = "stefan@hej.se";
+            fakeUserRepository.registeredEmails.Clear();
+            fakeEmailService.MethodHasBeenCalled = false;
+
+            //ACT
+            sut.RegisterUser(email);
+
+            //ASSERT
+            Assert.IsTrue(fakeEmailService.MethodHasBeenCalled);
+
+
+        }
+
+        [TestMethod]
         public void When_registration_ok_user_is_saved()
         {
             //ARRANGE
@@ -58,7 +76,6 @@ namespace TucTesting.Tests.Services
 
             //ASSERT
             Assert.IsTrue(fakeUserRepository.registeredEmails.Contains(email));
-
         }
 
         [TestMethod]
