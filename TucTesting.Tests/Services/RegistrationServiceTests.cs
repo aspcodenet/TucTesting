@@ -3,48 +3,54 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Moq;
 using TucTesting.Models;
 using TucTesting.Services;
 using static TucTesting.Services.IRegistrationService;
 
 namespace TucTesting.Tests.Services
 {
-    public class FakeUserRepository : IUserRegistrationRepository
-    {
-        public List<string> registeredEmails = new List<string>();
-        public UserRegistration Get(string email)
-        {
-            //if (registeredEmails.Contains(email) == null) return null;
-            //return new UserRegistration();
+    //public class FakeUserRepository : IUserRegistrationRepository
+    //{
+    //    public List<string> registeredEmails = new List<string>();
+    //    public UserRegistration Get(string email)
+    //    {
+    //        //if (registeredEmails.Contains(email) == null) return null;
+    //        //return new UserRegistration();
 
-            return registeredEmails.Contains(email) ? new UserRegistration() : null;
-        }
-        public void CreateNew(string email)
-        {
-            registeredEmails.Add(email);
-        }
-    }
+    //        return registeredEmails.Contains(email) ? new UserRegistration() : null;
+    //    }
+    //    public void CreateNew(string email)
+    //    {
+    //        registeredEmails.Add(email);
+    //    }
+    //}
 
-    public class FakeEmailService : IEmailService
-    {
-        public bool MethodHasBeenCalled = false;
-        public void SendEmail(string email)
-        {
-            MethodHasBeenCalled = true;
-        }
-    }
+    //public class FakeEmailService : IEmailService
+    //{
+    //    public bool MethodHasBeenCalled = false;
+    //    public void SendEmail(string email)
+    //    {
+    //        MethodHasBeenCalled = true;
+    //    }
+    //}
 
     // Är personens webaddress med domän @hej.se eller @hej.com ? Annars fail
     [TestClass]
     public class RegistrationServiceTests
     {
         private RegistrationService sut;
-        private FakeUserRepository fakeUserRepository = new FakeUserRepository();
-        private FakeEmailService fakeEmailService = new FakeEmailService();
+        //private FakeUserRepository fakeUserRepository = new FakeUserRepository();
+        //private FakeEmailService fakeEmailService = new FakeEmailService();
+        private readonly Mock<IUserRegistrationRepository> userRepositoryMock;
+        private readonly Mock<IEmailService> emailServiceMock;
 
         public RegistrationServiceTests()
         {
-            sut = new RegistrationService(fakeUserRepository, fakeEmailService);
+            userRepositoryMock = new Mock<IUserRegistrationRepository>();
+            emailServiceMock = new Mock<IEmailService>();
+            sut = new RegistrationService(userRepositoryMock.Object,
+                emailServiceMock.Object);
         }
 
         [TestMethod]
@@ -52,14 +58,14 @@ namespace TucTesting.Tests.Services
         {
             //ARRANGE
             var email = "stefan@hej.se";
-            fakeUserRepository.registeredEmails.Clear();
-            fakeEmailService.MethodHasBeenCalled = false;
-
+            userRepositoryMock.Setup(u => u.Get(email)).Returns((UserRegistration)null);
             //ACT
             sut.RegisterUser(email);
 
             //ASSERT
-            Assert.IsTrue(fakeEmailService.MethodHasBeenCalled);
+            emailServiceMock.Verify(e=>e.SendEmail(email), Times.Once());
+
+            //Assert.IsTrue(fakeEmailService.MethodHasBeenCalled);
 
 
         }
@@ -69,13 +75,15 @@ namespace TucTesting.Tests.Services
         {
             //ARRANGE
             var email = "stefan@hej.se";
-            fakeUserRepository.registeredEmails.Clear();
+            userRepositoryMock.Setup(u => u.Get(email)).Returns((UserRegistration)null);
+
 
             //ACT
             sut.RegisterUser(email);
 
             //ASSERT
-            Assert.IsTrue(fakeUserRepository.registeredEmails.Contains(email));
+            userRepositoryMock.Verify(u=>u.CreateNew(email), Times.Once());
+            //Assert.IsTrue(fakeUserRepository.registeredEmails.Contains(email));
         }
 
         [TestMethod]
@@ -83,7 +91,8 @@ namespace TucTesting.Tests.Services
         {
             // ARRANGE
             var userEmail = "stefan@hej.se";
-            fakeUserRepository.CreateNew(userEmail);
+            userRepositoryMock.Setup(u => u.Get(userEmail)).Returns(new UserRegistration());
+            //fakeUserRepository.CreateNew(userEmail);
             
             //ACT
             var result = sut.RegisterUser(userEmail);
