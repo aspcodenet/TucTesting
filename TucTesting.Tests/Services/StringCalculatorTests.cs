@@ -13,6 +13,17 @@ namespace TucTesting.Tests.Services
             sut = new StringCalculator();
         }
 
+        //[TestMethod]
+        //public void When_passing_letter()
+        //{
+        //    var parameter = "5";
+
+        //    var result = sut.Add(parameter);
+
+        //    Assert.AreEqual(5, result);
+        //}
+
+
         [TestMethod]
         public void When_passing_single_number_should_return_the_number()
         {
