@@ -10,6 +10,9 @@ using static TucTesting.Services.IRegistrationService;
 
 namespace TucTesting.Tests.Services
 {
+    
+
+
     //public class FakeUserRepository : IUserRegistrationRepository
     //{
     //    public List<string> registeredEmails = new List<string>();
@@ -47,6 +50,9 @@ namespace TucTesting.Tests.Services
 
         public RegistrationServiceTests()
         {
+            
+
+
             userRepositoryMock = new Mock<IUserRegistrationRepository>();
             emailServiceMock = new Mock<IEmailService>();
             sut = new RegistrationService(userRepositoryMock.Object,
